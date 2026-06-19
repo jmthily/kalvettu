@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { FamilyTreeView } from "@/components/FamilyTreeView";
 import { TributeCard } from "@/components/TributeCard";
 import { MediaGallery } from "@/components/MediaGallery";
-import { LeafDivider } from "@/components/Navbar";
+import { SiteHeader, SiteFooter } from "@/components/home/HomeChrome";
 import { SectionTitle } from "@/components/SectionTitle";
 import { formatLifeDates } from "@/lib/utils";
 import type { Memorial, FamilyMember, Tribute, MediaItem, Person } from "@/lib/types";
@@ -35,20 +35,31 @@ export default function MemorialPublicView({ slug }: { slug: string }) {
 
   if (notFound) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-cream-50 p-12 text-center">
-        <div>
-          <h1 className="font-serif text-2xl text-maroon-800">Memorial not found</h1>
-          <Link href="/" className="mt-4 inline-block text-maroon-700 underline">
-            Home
-          </Link>
+      <div className="flex min-h-screen flex-col bg-cream-50">
+        <SiteHeader />
+        <div className="flex flex-1 items-center justify-center p-12 text-center">
+          <div>
+            <h1 className="font-serif text-2xl text-maroon-800">Memorial not found</h1>
+            <p className="mt-2 text-stone-600">This memorial may have been removed or the link is incorrect.</p>
+            <Link href="/" className="mt-4 inline-block text-maroon-700 underline">
+              Back to home
+            </Link>
+          </div>
         </div>
+        <SiteFooter />
       </div>
     );
   }
 
   if (!memorial) {
     return (
-      <p className="p-12 text-center text-stone-500">Loading memorial…</p>
+      <div className="flex min-h-screen flex-col bg-cream-50">
+        <SiteHeader />
+        <p className="flex flex-1 items-center justify-center p-12 text-center text-stone-500">
+          Loading memorial…
+        </p>
+        <SiteFooter />
+      </div>
     );
   }
 
@@ -78,7 +89,8 @@ function MemorialContent({ memorial, slug }: { memorial: Memorial; slug: string 
   const videos = media.filter((m) => m.mediaType === "video" && m.approved);
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="flex min-h-screen flex-col bg-cream-50">
+      <SiteHeader memorialSlug={slug} memorialName={memorial.fullName} />
       <header className="bg-gradient-to-b from-maroon-800 to-maroon-700 px-4 py-16 text-center text-white">
         {memorial.profilePhotoUrl && (
           <div className="mx-auto mb-6 h-28 w-28 overflow-hidden rounded-full border-4 border-gold-300">
@@ -107,47 +119,52 @@ function MemorialContent({ memorial, slug }: { memorial: Memorial; slug: string 
         )}
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-12">
-        {memorial.biography && (
-          <section className="mb-10">
-            <SectionTitle title="Biography" />
-            <p className="leading-relaxed text-stone-700">{memorial.biography}</p>
+      <main className="mx-auto max-w-3xl flex-1 px-4 py-12">
+        {(memorial.biography || memorial.lifeHistory) && (
+          <section id="biography" className="mb-10 scroll-mt-24">
+            {memorial.biography && (
+              <>
+                <SectionTitle title="Biography" />
+                <p className="leading-relaxed text-stone-700">{memorial.biography}</p>
+              </>
+            )}
+            {memorial.lifeHistory && (
+              <div className={memorial.biography ? "mt-8" : ""}>
+                <SectionTitle title="Life History" />
+                <p className="whitespace-pre-wrap leading-relaxed text-stone-700">
+                  {memorial.lifeHistory}
+                </p>
+              </div>
+            )}
           </section>
         )}
-        {memorial.lifeHistory && (
-          <section className="mb-10">
-            <SectionTitle title="Life History" />
-            <p className="whitespace-pre-wrap leading-relaxed text-stone-700">
-              {memorial.lifeHistory}
-            </p>
-          </section>
-        )}
-
-        <LeafDivider />
 
         {family.length > 0 && (
-          <section className="mb-10">
+          <section id="family" className="mb-10 scroll-mt-24">
             <SectionTitle title="Family Tree" />
             <FamilyTreeView people={family.map(toPerson)} />
           </section>
         )}
 
-        {photos.length > 0 && (
-          <section className="mb-10">
-            <SectionTitle title="Photos" />
-            <MediaGallery items={photos} />
-          </section>
-        )}
-
-        {videos.length > 0 && (
-          <section className="mb-10">
-            <SectionTitle title="Videos" />
-            <MediaGallery items={videos} />
+        {(photos.length > 0 || videos.length > 0) && (
+          <section id="gallery" className="mb-10 scroll-mt-24">
+            {photos.length > 0 && (
+              <>
+                <SectionTitle title="Photos" />
+                <MediaGallery items={photos} />
+              </>
+            )}
+            {videos.length > 0 && (
+              <div className={photos.length > 0 ? "mt-10" : ""}>
+                <SectionTitle title="Videos" />
+                <MediaGallery items={videos} />
+              </div>
+            )}
           </section>
         )}
 
         {tributes.length > 0 && (
-          <section className="mb-10 space-y-4">
+          <section id="tributes" className="mb-10 scroll-mt-24 space-y-4">
             <SectionTitle title="Tribute Wall" />
             {tributes.map((t) => (
               <TributeCard key={t.tributeId} tribute={t} />
@@ -168,6 +185,7 @@ function MemorialContent({ memorial, slug }: { memorial: Memorial; slug: string 
           </Link>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

@@ -55,10 +55,37 @@ npm run dev            # http://localhost:3020
 
 ## Deploy frontend to Vercel
 
+This repo is a **monorepo**. The Next.js app is in **`frontend/`**, not the repo root. Vercel must be pointed at that folder.
+
+### Fix: set Root Directory (required)
+
+If you see:
+
+```text
+Couldn't find any `pages` or `app` directory. Please create one under the project root
+```
+
+Vercel is building the wrong folder. Fix it:
+
+1. Vercel → your project → **Settings** → **General**
+2. **Root Directory** → **Edit**
+3. Enter: **`frontend`**
+4. Confirm (Vercel may ask to update build settings — accept)
+5. **Deployments** → **Redeploy** the latest commit
+
+On **first import**, set Root Directory before the first deploy:
+
+1. Import GitHub repo
+2. Before clicking Deploy, open **Root Directory** → **Edit** → **`frontend`**
+3. Add env var `NEXT_PUBLIC_API_URL`
+4. Deploy
+
+### Deploy checklist
+
 1. Push the repo to GitHub.
 2. [vercel.com](https://vercel.com) → **Add New Project** → import the repo.
-3. **Root Directory:** set to **`frontend`** (required — do not use repo root).
-4. Framework: Next.js (auto-detected).
+3. **Root Directory:** **`frontend`** ← critical
+4. Framework: Next.js (auto-detected from `frontend/package.json`).
 5. **Environment variables** (Production):
 
    | Variable | Value |

@@ -56,6 +56,38 @@ The Kalvettu Family`;
     );
   }
 
+  async sendPasswordResetEmail(email: string, resetLink: string): Promise<void> {
+    const subject = 'Reset your Kalvettu admin password';
+    const text = `You requested a password reset for your Kalvettu admin account.
+
+Click the link below to set a new password. This link expires in 1 hour.
+
+${resetLink}
+
+If you did not request this, you can ignore this email.`;
+
+    const html = `<p>You requested a password reset for your Kalvettu admin account.</p>
+<p><a href="${resetLink}">Set a new password</a></p>
+<p>This link expires in 1 hour.</p>
+<p>If you did not request this, you can ignore this email.</p>`;
+
+    if (!process.env.AWS_ACCESS_KEY_ID && process.env.NODE_ENV !== 'production') {
+      console.log(`[SES] Password reset to ${email}: ${resetLink}`);
+      return;
+    }
+
+    await this.client.send(
+      new SendEmailCommand({
+        Source: this.fromEmail,
+        Destination: { ToAddresses: [email] },
+        Message: {
+          Subject: { Data: subject },
+          Body: { Text: { Data: text }, Html: { Data: html } },
+        },
+      }),
+    );
+  }
+
   async sendFriendTributeInviteEmail(
     email: string,
     inviteLink: string,

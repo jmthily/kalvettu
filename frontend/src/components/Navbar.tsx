@@ -57,6 +57,7 @@ export function DashboardNav() {
     { href: "/dashboard", label: "Overview" },
     { href: "/dashboard/memorials", label: "Memorials" },
     { href: "/dashboard/memorials/new", label: "Create New" },
+    { href: "/dashboard/change-password", label: "Change password" },
   ];
 
   return (

@@ -55,6 +55,26 @@ export const api = {
         { method: "POST", body: JSON.stringify({ email, password }) },
         false
       ),
+
+    changePassword: (currentPassword: string, newPassword: string) =>
+      apiFetch<{ success: boolean }>("/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }),
+
+    forgotPassword: (email: string) =>
+      apiFetch<{ success: boolean; message: string }>(
+        "/auth/forgot-password",
+        { method: "POST", body: JSON.stringify({ email }) },
+        false
+      ),
+
+    resetPassword: (token: string, newPassword: string) =>
+      apiFetch<{ success: boolean }>(
+        "/auth/reset-password",
+        { method: "POST", body: JSON.stringify({ token, newPassword }) },
+        false
+      ),
   },
 
   memorials: {
@@ -87,6 +107,8 @@ export const api = {
         {},
         false
       ),
+    list: (memorialId: string) =>
+      apiFetch<Tribute[]>(`/memorials/${memorialId}/tributes`),
     create: (
       memorialId: string,
       body: { name: string; relationship?: string; message: string }
@@ -95,6 +117,16 @@ export const api = {
         method: "POST",
         body: JSON.stringify(body),
       }, false),
+    approve: (memorialId: string, tributeId: string) =>
+      apiFetch<Tribute>(`/tributes/${tributeId}/approve`, {
+        method: "POST",
+        body: JSON.stringify({ memorialId }),
+      }),
+    reject: (memorialId: string, tributeId: string) =>
+      apiFetch<Tribute>(`/tributes/${tributeId}/reject`, {
+        method: "POST",
+        body: JSON.stringify({ memorialId }),
+      }),
   },
 
   media: {

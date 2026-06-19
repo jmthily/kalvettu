@@ -2,14 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
-import { setAuthToken } from "@/lib/auth";
 import { FormInput } from "@/components/FormInput";
 
-export default function LoginForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default function ForgotPasswordPage() {
+  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -17,17 +14,15 @@ export default function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessage(null);
     const fd = new FormData(e.currentTarget);
 
     try {
-      const res = await api.auth.login(
-        String(fd.get("email")),
-        String(fd.get("password"))
-      );
-      setAuthToken(res.accessToken);
-      router.push(searchParams.get("redirect") || "/dashboard");
+      const res = await api.auth.forgotPassword(String(fd.get("email")));
+      setMessage(res.message);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed");
+      setError(err instanceof Error ? err.message : "Request failed");
+    } finally {
       setLoading(false);
     }
   }
@@ -39,32 +34,26 @@ export default function LoginForm() {
           <Link href="/" className="font-serif text-3xl font-bold text-maroon-800">
             Kalvettu
           </Link>
-          <p className="mt-2 text-stone-600">Admin login</p>
+          <p className="mt-2 text-stone-600">Reset your admin password</p>
         </div>
         <form
           onSubmit={handleSubmit}
           className="space-y-4 rounded-xl border border-stone-200 bg-white p-6 shadow-sm"
         >
-          <FormInput label="Email" name="email" type="email" required />
-          <FormInput label="Password" name="password" type="password" required />
+          <FormInput label="Admin email" name="email" type="email" required />
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="text-right">
-            <Link href="/forgot-password" className="text-sm text-maroon-700 underline">
-              Forgot password?
-            </Link>
-          </div>
+          {message && <p className="text-sm text-stone-600">{message}</p>}
           <button
             type="submit"
             disabled={loading}
             className="w-full rounded-lg bg-maroon-700 py-2.5 font-medium text-white hover:bg-maroon-800 disabled:opacity-50"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Sending…" : "Send reset link"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-stone-600">
-          First time?{" "}
-          <Link href="/setup" className="text-maroon-700 underline">
-            Create admin account
+          <Link href="/login" className="text-maroon-700 underline">
+            Back to sign in
           </Link>
         </p>
       </div>
